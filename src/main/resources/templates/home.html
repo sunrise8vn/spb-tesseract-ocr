@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Camera</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./assets/camera.css">
+</head>
+
+<body>
+<div class="display-cover">
+    <video autoplay></video>
+    <canvas class="d-none"></canvas>
+
+    <div class="video-options">
+        <select name="" id="" class="custom-select" style="display: none;">
+            <option value="">Select camera</option>
+        </select>
+    </div>
+
+    <img class="screenshot-image d-none" alt="">
+
+    <div class="controls">
+        <button class="btn btn-danger play" title="Play">
+            <i data-feather="play-circle"></i>
+        </button>
+        <button class="btn btn-info pause d-none" title="Pause">
+            <i data-feather="pause"></i>
+        </button>
+        <button class="btn btn-outline-success screenshot d-none" title="ScreenShot">
+            <i data-feather="image"></i>
+        </button>
+
+    </div>
+</div>
+<button class="btn btn-info download" title="Download" onclick="downloadImage()">
+    <i data-feather="download"></i>
+</button>
+
+<script src="https://unpkg.com/feather-icons"></script>
+<script src="./assets/camera.js"></script>
+<script src="./assets/jquery/jquery-3.5.1.min.js"></script>
+
+<script>
+    const downloadImage = () => {
+        // canvas.width = video.videoWidth;
+        // canvas.height = video.videoHeight;
+        canvas.width = 700;
+        canvas.height = 400;
+        // canvas.getContext('2d').drawImage(video, 0, 0);
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width /4, canvas.height / 4, 0, 0, canvas.width /4, canvas.height / 4);
+        // screenshotImage.src = canvas.toDataURL('image/png');
+        // screenshotImage.classList.remove('d-none');
+
+        const canvasData = canvas.toDataURL('image/png').replaceAll('data:image/png;base64,', '');
+
+        // const canvasData = screenshotImage.src.replace("data:image/png;base64,", "")
+
+        uploadImage(canvasData);
+    };
+
+    function downloadFile(fileName, data, fileFormat) {
+        const linkSource = 'data:' + fileFormat + ';base64' + data;
+        const downloadLink = document.createElement('a');
+        downloadLink.href = linkSource;
+        downloadLink.download = fileName;
+        downloadLink.click();
+    }
+
+    const uploadImage = (base64data) => {
+        const obj = {
+            result: base64data
+        }
+        $.ajax({
+            headers: {
+                'content-type': 'application/json'
+            },
+            type: 'POST',
+            url: 'http://localhost:28204/api/ocr/upload-base64',
+            data: JSON.stringify(obj)
+        })
+            .done((data) => {
+                console.log(data);
+            })
+            .fail((jqXHR) => {
+                console.log(jqXHR);
+            })
+    }
+</script>
+</body>
+
+</html>
